@@ -12,7 +12,7 @@
     $name = $data['name'];
     $email = $data['email'];
 
-        include "../database.php";
+        include "database.php";
         $sql = "INSERT INTO `data` (`name`, `email`) VALUES ('{$name}', '{$email}');";
         if($result = mysqli_query($conn,$sql)){
             $arr = array("message" => "Data Inserted Successfully.", "Status" => true);
