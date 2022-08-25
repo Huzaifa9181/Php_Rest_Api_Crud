@@ -15,7 +15,7 @@
         die();
     }
     
-    include "../database.php";
+    include "database.php";
     $sql = "Select * FROM `data` WHERE name LIKE '%{$search}%';";
     $result = mysqli_query($conn,$sql);
     if(mysqli_num_rows($result) > 0){
