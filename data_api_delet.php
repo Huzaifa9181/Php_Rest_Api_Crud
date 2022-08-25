@@ -11,7 +11,7 @@
     
     $id = $data['id'];
     
-    include "../database.php";
+    include "database.php";
     $sql = "DELETE FROM `data` WHERE `data`.`id` = {$id};
     ";
     if($result = mysqli_query($conn,$sql)){
