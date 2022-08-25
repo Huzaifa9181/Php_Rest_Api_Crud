@@ -13,7 +13,7 @@
     $name = $data['name'];
     $email = $data['email'];
 
-    include "../database.php";
+    include "database.php";
     $sql = "UPDATE `data` SET `name` = '{$name}', `email` = '{$email}' WHERE `data`.`id` = {$id};
     ";
     if($result = mysqli_query($conn,$sql)){
