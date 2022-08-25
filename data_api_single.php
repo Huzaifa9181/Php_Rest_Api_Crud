@@ -8,7 +8,7 @@ header("Access-Control-Allow-Origin: *");
 $data = json_decode(file_get_contents("php://input"),true);
 
 $id = $data['id'];
-    include "../database.php";
+    include "database.php";
     $sql = "SELECT * FROM `data` Where id = {$id}";
     $result = mysqli_query($conn,$sql);
     if(mysqli_num_rows($result) > 0){
