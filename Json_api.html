@@ -50,18 +50,18 @@
             </div>
             <div class="col-md-5 mt-4 search-box">
                 <label for="search" id="search-label">Search : </label>
-                <input type="text" name="search" id="search">
+                <input type="text" name="search" id="search-name">
             </div>
         </div>
     </div>
 
-    <div class="container-fluid p-3 form-cont ">
+    <div class="container-fluid p-3 form-cont">
         <form class="justify-content-center">
             <label for="username">UserName : </label>
             <input type="text" name="username" id="iusername">
             <label for="email" id="email">Email : </label>
             <input type="email" name="email" id="iemail">
-            <input type="submit" id="insert" class="btn btn-primary" value="Save">
+            <input type="submit" id="insert" class="btn btn-primary" value="Insert">
         </form>
     </div>
 
@@ -90,11 +90,12 @@
                 </div>
                 <div class="modal-body ">
                     <form>
+                        <input type="text" id="edit-hidden"><br>
                         <label for="username">Name : </label>
                         <input type="text" name="username" id="edit-username"><br>
                         <label for="email" id="email">Email : </label>
                         <input type="email" class="mt-3" name="email" id="edit-email"><br>
-                        <input type="submit" class="btn btn-primary mt-3" value="Update">
+                        <input type="submit" class="btn btn-primary mt-3" id="update-btn" value="Update">
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -116,25 +117,26 @@
                     e.preventDefault();
                     var iname = $("#iusername").val();
                     var iemail = $("#iemail").val();
-                    console.log(iname);
-                    console.log(iemail);
-                    var i_obj = {
-                        name: iname,
-                        email: iemail
-                    }
-
-                    var iJson = JSON.stringify(i_obj);
-
-                    $.ajax({
-                        url: "http://localhost/ajax/json_api/data_api_insert.php",
-                        type: "POST",
-                        data: iJson,
-                        success: function(data) {
-                            console.log(data);
+                    if (iname == "" || iemail == "") {
+                        alert("Fill all fields");
+                    } else {
+                        var i_obj = {
+                            name: iname,
+                            email: iemail
                         }
-                    })
 
+                        var iJson = JSON.stringify(i_obj);
 
+                        $.ajax({
+                            url: "http://localhost/ajax/json_api/data_api_insert.php",
+                            type: "POST",
+                            data: iJson,
+                            success: function(data) {
+                                console.log(data);
+                            }
+                        })
+                        loadTable();
+                    }
                 })
                 // fetch all data 
 
@@ -145,7 +147,7 @@
                     success: function(data) {
                         $count = 1;
                         $.each(data, function(key, value) {
-                            $("#tbody").append("<tr><td>" + $count + "</td><td>" + value.name + "</td><td>" + value.email + "</td><td><button class='btn btn-success' id='edit-btn' data-bs-toggle='modal' data-bs-target='#exampleModal' data-eid='" + value.id + "'>Edit</button></td><td><button class='btn btn-danger' data-id='" + value.id + "'>Delet</button></td></tr>");
+                            $("#tbody").append("<tr><td>" + $count + "</td><td>" + value.name + "</td><td>" + value.email + "</td><td><button class='btn btn-success' id='edit-btn' data-bs-toggle='modal' data-bs-target='#exampleModal' data-eid='" + value.id + "'>Edit</button></td><td><button class='btn btn-danger' id='delet-btn' data-id='" + value.id + "'>Delet</button></td></tr>");
                             $count = $count + 1;
 
                         })
@@ -158,11 +160,28 @@
 
             // delet
 
-            // update
+            $(document).on("click", "#delet-btn", function() {
+                var delet_id = $(this).data("id");
+                var d_obj = {
+                    id: delet_id
+                }
+                var dJson = JSON.stringify(d_obj);
+                $.ajax({
+                    url: "http://localhost/ajax/json_api/data_api_delet.php",
+                    type: "POST",
+                    data: dJson,
+                    success: function(data) {
+                        alert(data.message);
+                    }
+                })
 
+            })
+
+            // update
+            $("#edit-hidden").hide();
             $(document).on("click", "#edit-btn", function() {
                 var sid = $(this).data("eid");
-                console.log(sid);
+                // console.log(sid);
                 var obj = {
                     id: sid
                 }
@@ -172,13 +191,69 @@
                     type: "POST",
                     data: mJSON,
                     success: function(data) {
+                        $("#edit-hidden").val(data[0].id);
                         $("#edit-username").val(data[0].name);
                         $("#edit-email").val(data[0].email);
                     }
                 })
             });
 
+            $(document).on("click", "#update-btn", function(e) {
+                // e.preventDefault();
+                var uid = $("#edit-hidden").val();
+                var uname = $("#edit-username").val();
+                var uemail = $("#edit-email").val();
+                if (uname == "" || uemail == "") {
+                    alert("Fill all fields");
+                } else {
+                    var u_obj = {
+                        id: uid,
+                        name: uname,
+                        email: uemail
+                    }
 
+                    var uJson = JSON.stringify(u_obj);
+
+                    $.ajax({
+                        url: "http://localhost/ajax/json_api/data_api_update.php",
+                        type: "POST",
+                        data: uJson,
+                        success: function(data) {
+                            // alert(data.message);
+                        }
+                    });
+
+
+                }
+            })
+
+        })
+
+        // search
+        // $("#search").on("keyup",function(){
+        //         var search_val = $(this).val();
+
+        $("#search-name").on("keyup", function() {
+            var search = $(this).val();
+            $("#tbody").html("");
+            $.ajax({
+                url: "http://localhost/ajax/json_api/data_api_search.php?search=" + search,
+                type: "GET",
+                success: function(data) {
+                    if (data.status == "false") {
+                        $("#tbody").html("");
+                        $("#tbody").append("<tr><td><b>" + data.message + "</b></td></tr>");
+                    } else {
+                        $count = 1;
+                        $.each(data, function(key, value) {
+                            $("#tbody").append("<tr><td>" + $count + "</td><td>" + value.name + "</td><td>" + value.email + "</td><td><button class='btn btn-success' id='edit-btn' data-bs-toggle='modal' data-bs-target='#exampleModal' data-eid='" + value.id + "'>Edit</button></td><td><button class='btn btn-danger' id='delet-btn' data-id='" + value.id + "'>Delet</button></td></tr>");
+                            $count = $count + 1;
+                            console.log(data.message);
+                            console.log(data.status);
+                        })
+                    }
+                }
+            })
         })
     </script>
 </body>
