@@ -5,7 +5,7 @@
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
 
-    include "../database.php";
+    include "database.php";
     $sql = "SELECT * FROM `data`";
     $result = mysqli_query($conn,$sql);
     if(mysqli_num_rows($result) > 0){
